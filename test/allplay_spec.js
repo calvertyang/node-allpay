@@ -18,7 +18,7 @@ describe('Allpay', function () {
       'MerchantTradeNo': 'nodeallplay' + ( parseInt(Math.random() * 10) + 1 ),
       'TotalAmount': 120,
       'TradeDesc': 'allpay 商城購物',
-      'itemName': [
+      'ItemName': [
         {
           'name': 'testItem',
           'qty': '1',
@@ -45,9 +45,9 @@ describe('Allpay', function () {
       expect(form_data.TotalAmount).to.be.a('number');
       expect(form_data.TradeDesc).to.be.a('string');
 
-      expect(form_data.itemName).to.be.a('string');
-      expect(form_data.itemName).to.contain('#');
-      expect(form_data.itemName).to.contain('元');
+      expect(form_data.ItemName).to.be.a('string');
+      expect(form_data.ItemName).to.contain('#');
+      expect(form_data.ItemName).to.contain('元');
 
       expect(form_data.ReturnURL).to.be.a('string');
       expect(form_data.ReturnURL).to.contain('http');
