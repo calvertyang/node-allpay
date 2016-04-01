@@ -15,7 +15,7 @@ describe('Allpay', function () {
 
   it('checkout shoulld success', function (done) {
     allpay.aioCheckOut({
-      'MerchantTradeNo': 'node-allplay' + ( parseInt(Math.random() * 10) + 1 ),
+      'MerchantTradeNo': 'nodeallplay' + ( parseInt(Math.random() * 10) + 1 ),
       'TotalAmount': 120,
       'TradeDesc': 'allpay 商城購物',
       'itemName': [
@@ -32,12 +32,28 @@ describe('Allpay', function () {
       ],
       'ChoosePayment': 'WebATM',
       'ReturnURL': 'http://localhost:3000',
-    }, function(err, res){
-      if(err){
-        console.log('error :');
-        console.log(err);
-      }
-      logger.debug(res);
+    }, function(data){
+      console.log(data);
+      expect(data).to.be.a('object');
+      expect(data.url).to.be.a('string');
+
+      var form_data = data.data;
+      expect(form_data.MerchantID).to.be.a('string');
+      expect(form_data.MerchantTradeNo).to.be.a('string');
+      expect(form_data.MerchantTradeDate).to.be.a('string');
+      expect(form_data.PaymentType).to.be.a('string');
+      expect(form_data.TotalAmount).to.be.a('number');
+      expect(form_data.TradeDesc).to.be.a('string');
+
+      expect(form_data.itemName).to.be.a('string');
+      expect(form_data.itemName).to.contain('#');
+      expect(form_data.itemName).to.contain('元');
+
+      expect(form_data.ReturnURL).to.be.a('string');
+      expect(form_data.ReturnURL).to.contain('http');
+      expect(form_data.ChoosePayment).to.be.a('string');
+      expect(form_data.CheckMacValue).to.be.a('string');
+
       done();
     })
   });
