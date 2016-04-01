@@ -17,6 +17,7 @@ describe('Allpay', function () {
     allpay.aioCheckOut({
       'MerchantTradeNo': 'node-allplay' + ( parseInt(Math.random() * 10) + 1 ),
       'TotalAmount': 120,
+      'TradeDesc': 'allpay 商城購物',
       'itemName': [
         {
           'name': 'testItem',
