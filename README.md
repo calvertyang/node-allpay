@@ -57,6 +57,9 @@ allpay.setHost({
 
 ## 支援以下 API 介接
 
+#### 訂單產生
+ * allpay.[aioCheckOut](#aioCheckOut)(`options`, `callback`)
+
 #### 訂單查詢
  * allpay.[queryTradeInfo](#queryTradeInfo)(`options`, `callback`)
 
@@ -70,6 +73,43 @@ allpay.setHost({
  * allpay.[aioChargeback](#aioChargeback)(`options`, `callback`)
 
 ---------------
+
+<a name="aioCheckOut"></a>
+#### 訂單產生
+
+```js
+allpay.queryTradeInfo(options, callback)
+```
+
+> options.`MerchantTradeNo`：**必填**，廠商交易編號，如：`Allpay20141209001`。
+>
+> options.`TotalAmount`：**必填**，交易金額，如：`5000`。
+>
+> options.`TradeDesc`：**必填**，交易描述，如：`allpay 商城購物`。
+>
+> options.`ItemName`：**必填**，商品名稱，使用陣列物件， 如：
+
+```
+'ItemName': [
+  {
+    'name': 'testItem',
+    'qty': '1',
+    'price': 60
+  },
+  {
+    'name': 'testItem2',
+    'qty': '1',
+    'price': 60
+  }
+]
+```
+
+> options.`ReturnURL`：**必填**，回傳網址，如：`http://www.allpay.com.tw/
+receive.php`。
+>
+> options.`ChoosePayment`：**必填**，選擇預設付款方式，如：`WebATM`
+>
+> options.`CheckMacValue`: **選填**，交易檢查碼，未填寫則由程式自動產生。
 
 <a name="queryTradeInfo"></a>
 #### 訂單查詢
