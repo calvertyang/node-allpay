@@ -153,7 +153,7 @@ function callback (err, response) {
 
 ---
 
-詳細參數說明請參閱[全方位金流介接技術文件](http://www.allpay.com.tw/Service/Appcntr_Dwnld?Anchor=AnchorDoc)。
+詳細參數說明請參閱[全方位金流介接技術文件](https://www.allpay.com.tw/Content/files/allpay_011.pdf)。
 
 ## License
 
