@@ -60,6 +60,9 @@ allpay.setHost({
 #### 訂單產生
  * allpay.[aioCheckOut](#aioCheckOut)(`options`, `callback`)
 
+#### 付款結果通知
+ * allpay.[checkOutResultNotify](#checkOutResultNotify)(`options`, `callback`)
+
 #### 訂單查詢
  * allpay.[queryTradeInfo](#queryTradeInfo)(`options`, `callback`)
 
@@ -110,6 +113,16 @@ receive.php`。
 > options.`ChoosePayment`：**必填**，選擇預設付款方式，如：`WebATM`
 >
 > options.`CheckMacValue`: **選填**，交易檢查碼，未填寫則由程式自動產生。
+
+<a name="checkOutResultNotify"></a>
+#### 付款結果通知 (實作中)
+
+```js
+allpay.checkOutResultNotify(options, callback)
+```
+
+> options 直接將歐付寶伺服器端 POST 過來的資料帶入來驗證資料是否正確
+
 
 <a name="queryTradeInfo"></a>
 #### 訂單查詢
