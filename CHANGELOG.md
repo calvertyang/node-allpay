@@ -1,4 +1,8 @@
 ## Changelog
+#### 0.0.4
+_2016-04-21_
+ * Support more parameter for AioCheckOut API [#5](https://github.com/CalvertYang/node-allpay/pull/5)
+
 #### 0.0.3
 _2016-04-02_
  * Add AioCheckOut API [#2](https://github.com/CalvertYang/node-allpay/pull/2)
