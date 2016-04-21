@@ -12,7 +12,6 @@ allpay.setHost({
 
 
 describe('Allpay', function () {
-
   it('checkout shoulld success', function (done) {
     allpay.aioCheckOut({
       'MerchantTradeNo': 'nodeallplay' + ( parseInt(Math.random() * 10) + 1 ),
@@ -57,4 +56,8 @@ describe('Allpay', function () {
       done();
     })
   });
+
+  // it('checkOutResultNotify should failed', function (done) {
+
+  // });
 });
