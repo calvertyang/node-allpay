@@ -1,7 +1,7 @@
 ## AllPay 全方位金流介接 SDK for Node.js
 
 [![NPM version](https://badge.fury.io/js/allpay.svg)](https://npmjs.org/package/allpay)
-[![Build Status](https://travis-ci.org/CalvertYang/allpay.svg)](https://travis-ci.org/calvertyang/allpay)
+[![Build Status](https://travis-ci.org/CalvertYang/node-allpay.svg)](https://travis-ci.org/CalvertYang/node-allpay)
 
 [![NPM status](https://nodei.co/npm/allpay.png?downloads=true&stars=true)](https://npmjs.org/package/allpay)
 
@@ -61,29 +61,14 @@ allpay.setHost({
 
 ## 支援以下功能
 
-#### 訂單產生
- * allpay.[aioCheckOut](#aioCheckOut)(`options`, `callback`)
-
-#### 訂單查詢
- * allpay.[queryTradeInfo](#queryTradeInfo)(`options`, `callback`)
-
-#### 信用卡定期定額訂單查詢
- * allpay.[queryCreditCardPeriodInfo](#queryCreditCardPeriodInfo)(`options`, `callback`)
-
-#### 信用卡關帳／退刷／取消／放棄
- * allpay.[doAction](#doAction)(`options`, `callback`)
-
-#### 廠商通知退款
- * allpay.[aioChargeback](#aioChargeback)(`options`, `callback`)
-
-#### 廠商申請撥款/退款
- * allpay.[capture](#capture)(`options`, `callback`)
-
-#### 產生交易檢查碼
- * allpay.[genCheckMacValue](#genCheckMacValue)(`data`, `encryptType`)
-
-#### 驗證資料正確性
- * allpay.[isDataValid](#isDataValid)(`data`)
+ * [訂單產生](#aioCheckOut)：`allpay.aioCheckOut(options, callback)`
+ * [訂單查詢](#queryTradeInfo)：`allpay.queryTradeInfo(options, callback)`
+ * [信用卡定期定額訂單查詢](#queryCreditCardPeriodInfo)：`allpay.queryCreditCardPeriodInfo(options, callback)`
+ * [信用卡關帳／退刷／取消／放棄](#doAction)：`allpay.doAction(options, callback)`
+ * [廠商通知退款](#aioChargeback)：`allpay.aioChargeback(options, callback)`
+ * [廠商申請撥款/退款](#capture)：`allpay.capture(options, callback)`
+ * [產生交易檢查碼](#genCheckMacValue)：`allpay.genCheckMacValue(data, encryptType)`
+ * [驗證資料正確性](#isDataValid)：`allpay.isDataValid(data)`
 
 ---------------
 ## 使用範例
@@ -167,6 +152,29 @@ allpay.setHost({
   });
   ```
 
+ * 回應內容
+
+  ```js
+  {
+    url: 'https://payment-stage.allpay.com.tw/Cashier/AioCheckOut/V2',
+    data: {
+      MerchantID: '2000214',
+      MerchantTradeNo: 'TS20160502000001',
+      MerchantTradeDate: '2016/05/02 00:00:00',
+      PaymentType: 'aio',
+      TotalAmount: 100,
+      TradeDesc: '商城購物測試',
+      ItemName: '商品一 100 元 x1',
+      ReturnURL: 'http://localhost:3000',
+      ChoosePayment: 'ALL',
+      NeedExtraPaidInfo: 'N',
+      DeviceSource: 'P',
+      CheckMacValue: 'CFA8E4AB2A5739FE3014014699455E40'
+    },
+    html: '<form id="_allpayForm" method="post" target="_self" action="https://payment-stage.allpay.com.tw/Cashier/AioCheckOut/V2"><input type="hidden" name="MerchantID" value="2000214" /><input type="hidden" name="MerchantTradeNo" value="TS20160502000001" /><input type="hidden" name="MerchantTradeDate" value="2016/05/02 00:00:00" /><input type="hidden" name="PaymentType" value="aio" /><input type="hidden" name="TotalAmount" value="100" /><input type="hidden" name="TradeDesc" value="商城購物測試" /><input type="hidden" name="ItemName" value="商品一 100 元 x1" /><input type="hidden" name="ReturnURL" value="http://localhost:3000" /><input type="hidden" name="ChoosePayment" value="ALL" /><input type="hidden" name="NeedExtraPaidInfo" value="N" /><input type="hidden" name="DeviceSource" value="P" /><input type="hidden" name="CheckMacValue" value="CFA8E4AB2A5739FE3014014699455E40" /><script type="text/javascript">document.getElementById("_allpayForm").submit();</script></form>'
+  }
+  ```
+
 <a name="queryTradeInfo"></a>
 #### 訂單查詢
 
@@ -178,6 +186,26 @@ allpay.queryTradeInfo({
 });
 ```
 
+回應內容
+```js
+{
+  HandlingCharge: '5',
+  ItemName: '商品一 100 元 x1',
+  MerchantID: '2000214',
+  MerchantTradeNo: 'TS20160502000001',
+  PayAmt: '0',
+  PaymentDate: '2016/05/02 00:01:23',
+  PaymentType: 'Credit_CreditCard',
+  PaymentTypeChargeFee: '5',
+  RedeemAmt: '0',
+  TradeAmt: '100',
+  TradeDate: '2016/05/02 00:00:00',
+  TradeNo: '1605020000459168',
+  TradeStatus: '1',
+  CheckMacValue: 'ABE4DDCB8F9895B7FD33858EFB095422'
+}
+```
+
 <a name="queryCreditCardPeriodInfo"></a>
 #### 信用卡定期定額訂單查詢
 
@@ -187,6 +215,36 @@ allpay.queryCreditCardPeriodInfo({
 }, function(err, result) {
   // Do something here...
 });
+```
+
+回應內容
+```js
+{
+  ExecStatus: '1',
+  MerchantID: '2000214',
+  MerchantTradeNo: 'TS20160502000001',
+  TradeNo: '1605020000459168',
+  RtnCode: 1,
+  PeriodType: 'M',
+  Frequency: 1,
+  ExecTimes: 6,
+  PeriodAmount: 100,
+  amount: 100,
+  gwsr: 10530824,
+  process_date: '2016/05/02 00:01:23',
+  auth_code: '777777',
+  card4no: '2222',
+  card6no: '431195',
+  TotalSuccessTimes: 1,
+  TotalSuccessAmount: 100,
+  ExecLog: [{
+    RtnCode: 1,
+    amount: 100,
+    gwsr: 10530824,
+    process_date: '2016/05/02 00:01:23',
+    auth_code: '777777'
+  }]
+}
 ```
 
 <a name="doAction"></a>
@@ -203,6 +261,17 @@ allpay.doAction({
 });
 ```
 
+回應內容
+```js
+{
+  MerchantID: '2000214'
+  MerchantTradeNo: 'TS20160502000001',
+  TradeNo: '1605020000459168',
+  RtnCode: '1',
+  RtnMsg: 'OK'
+}
+```
+
 <a name="aioChargeback"></a>
 #### 廠商通知退款
 
@@ -216,6 +285,14 @@ allpay.aioChargeback({
 });
 ```
 
+回應內容
+```js
+{
+  status: '1',
+  message: 'OK'
+}
+```
+
 <a name="capture"></a>
 #### 廠商申請撥款/退款
 
@@ -227,6 +304,18 @@ allpay.capture({
 }, function(err, result) {
   // Do something here...
 });
+```
+
+回應內容
+```js
+{
+  MerchantID: '2000214',
+  MerchantTradeNo: 'TS20160502000001',
+  TradeNo: '1605020000459168',
+  RtnCode: '1',
+  RtnMsg: 'OK',
+  AllocationDate: '2016-05-05'
+}
 ```
 
 <a name="genCheckMacValue"></a>
