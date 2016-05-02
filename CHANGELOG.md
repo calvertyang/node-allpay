@@ -1,4 +1,9 @@
 ## Changelog
+#### 1.0.0
+_2016_05_02_
+ * Support more APIs
+ * Rewrite in ES6
+
 #### 0.0.4
 _2016-04-21_
  * Support more parameter for AioCheckOut API [#5](https://github.com/CalvertYang/node-allpay/pull/5)
