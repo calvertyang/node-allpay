@@ -1,7 +1,7 @@
 {
   "name": "allpay",
   "author": "Calvert Yang",
-  "version": "0.0.4",
+  "version": "1.0.0",
   "description": "AllPay 全方位金流介接 SDK for Node.js",
   "contributors": [
     "Calvert Yang"
