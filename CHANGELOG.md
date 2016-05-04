@@ -1,6 +1,10 @@
 ## Changelog
+#### 1.1.0
+_2016-05-04_
+ * Add data type validation
+
 #### 1.0.0
-_2016_05_02_
+_2016-05-02_
  * Support more APIs
  * Rewrite in ES6
 

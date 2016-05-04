@@ -33,16 +33,33 @@ var allpay = new Allpay({
 });
 ```
 
-`merchantID`：**必填**，廠商編號（由 AllPay 提供）。
+`merchantID`：**必填**，廠商編號 (由 AllPay 提供)
 
 `hashKey`：**必填**，全方位金流介接的 HashKey。
 
 `hashIV`：**必填**，全方位金流介接的 HashIV。
 
-`mode`：**選填**，於生產環境使用時請設定為 "production"（預設為 "test"）。
+`mode`：**選填**，於生產環境使用時請設定為 "production" (預設為 "test")
 
-`debug`：**選填**，設為 true 可查看除錯訊息（預設為 false）。
+`debug`：**選填**，設為 true 可查看除錯訊息 (預設為 false)
 
+## 支援以下功能
+
+ * [設定連線](#setHost)：`allpay.setHost(options)`
+ * [取得目前設定](#getConfig)：`allpay.getConfig()`
+ * [訂單產生](#aioCheckOut)：`allpay.aioCheckOut(options, callback)`
+ * [訂單查詢](#queryTradeInfo)：`allpay.queryTradeInfo(options, callback)`
+ * [信用卡定期定額訂單查詢](#queryCreditCardPeriodInfo)：`allpay.queryCreditCardPeriodInfo(options, callback)`
+ * [信用卡關帳／退刷／取消／放棄](#doAction)：`allpay.doAction(options, callback)`
+ * [廠商通知退款](#aioChargeback)：`allpay.aioChargeback(options, callback)`
+ * [廠商申請撥款/退款](#capture)：`allpay.capture(options, callback)`
+ * [產生交易檢查碼](#genCheckMacValue)：`allpay.genCheckMacValue(data, encryptType)`
+ * [驗證資料正確性](#isDataValid)：`allpay.isDataValid(data, encryptType)`
+
+---------------
+## 使用範例
+
+<a name="setHost"></a>
 #### 設定連線（非必要）
 
 ```js
@@ -53,28 +70,44 @@ allpay.setHost({
 });
 ```
 
-`baseUrl`：**選填**，介接網址（預設為 payment.allpay.com.tw）。
+> `baseUrl`：**選填**，介接網址 (預設為 payment-stage.allpay.com.tw)
+>
+> `port`：**選填**，連接埠 (預設為 443)
+>
+> `useSSL`：**選填**，使用 SSL 連線 (預設為 true)
 
-`port`：**選填**，連接埠（預設為 443）。
+<a name="getConfig"></a>
+#### 取得目前設定
 
-`useSSL`：**選填**，使用 SSL 連線（預設為 true）。
-
-## 支援以下功能
-
- * [訂單產生](#aioCheckOut)：`allpay.aioCheckOut(options, callback)`
- * [訂單查詢](#queryTradeInfo)：`allpay.queryTradeInfo(options, callback)`
- * [信用卡定期定額訂單查詢](#queryCreditCardPeriodInfo)：`allpay.queryCreditCardPeriodInfo(options, callback)`
- * [信用卡關帳／退刷／取消／放棄](#doAction)：`allpay.doAction(options, callback)`
- * [廠商通知退款](#aioChargeback)：`allpay.aioChargeback(options, callback)`
- * [廠商申請撥款/退款](#capture)：`allpay.capture(options, callback)`
- * [產生交易檢查碼](#genCheckMacValue)：`allpay.genCheckMacValue(data, encryptType)`
- * [驗證資料正確性](#isDataValid)：`allpay.isDataValid(data)`
-
----------------
-## 使用範例
+```js
+var config = allpay.getConfig();
+```
 
 <a name="aioCheckOut"></a>
 #### 訂單產生
+
+> 商品參數設定：
+```js
+Items: [{
+  name: "商品名稱",
+  price: 商品單價,
+  currency: "幣別單位",
+  quantity: 商品數量
+}]
+```
+> 發票商品內容參數設定：
+```js
+InvoiceItems: [{
+  name: "商品名稱",
+  count: 商品數量,
+  word: "商品單位",
+  price: 商品單價,
+  taxType: "商品課稅別"
+}]
+```
+> 額外可用參數：
+>
+> `paymentButton`：**選填**，表單按鈕要顯示的文字。(若沒有設定此參數，所產生的表單會包含自動送出的語法)
 
  * 一般交易
 
@@ -86,8 +119,9 @@ allpay.setHost({
     TradeDesc: "商城購物測試",
     Items: [{
       name: "商品一",
-      quantity: "1",
-      price: 100
+      price: 100,
+      currency: "元",
+      quantity: 1
     }],
     ReturnURL: "http://localhost/receive",
     ChoosePayment: "ALL"
@@ -106,8 +140,9 @@ allpay.setHost({
    TradeDesc: "商城購物測試",
    Items: [{
      name: "商品一",
-     quantity: "1",
-     price: 100
+     price: 100,
+     currency: "元",
+     quantity: 1
    }],
    ReturnURL: "http://localhost/receive",
    ChoosePayment: "ALL",
@@ -117,9 +152,9 @@ allpay.setHost({
    TaxType: "1",
    InvoiceItems: [{
      name: "商品一",
-     count: "1",
+     count: 1,
      word: "個",
-     price: "100",
+     price: 100,
      taxType: "1"
    }],
    InvType: "07"
@@ -138,8 +173,9 @@ allpay.setHost({
     TradeDesc: "商城購物測試",
     Items: [{
       name: "商品一",
-      quantity: "1",
-      price: 100
+      price: 100,
+      currency: "元",
+      quantity: 1
     }],
     ReturnURL: "http://localhost/receive",
     ChoosePayment: "Credit",
@@ -164,14 +200,12 @@ allpay.setHost({
       PaymentType: 'aio',
       TotalAmount: 100,
       TradeDesc: '商城購物測試',
-      ItemName: '商品一 100 元 x1',
-      ReturnURL: 'http://localhost:3000',
+      ItemName: '商品一 100 元 x 1',
+      ReturnURL: 'http://localhost/receive',
       ChoosePayment: 'ALL',
-      NeedExtraPaidInfo: 'N',
-      DeviceSource: 'P',
-      CheckMacValue: 'CFA8E4AB2A5739FE3014014699455E40'
+      CheckMacValue: '5D6D710C359E8ACC20069C2FFFE34F24'
     },
-    html: '<form id="_allpayForm" method="post" target="_self" action="https://payment-stage.allpay.com.tw/Cashier/AioCheckOut/V2"><input type="hidden" name="MerchantID" value="2000214" /><input type="hidden" name="MerchantTradeNo" value="TS20160502000001" /><input type="hidden" name="MerchantTradeDate" value="2016/05/02 00:00:00" /><input type="hidden" name="PaymentType" value="aio" /><input type="hidden" name="TotalAmount" value="100" /><input type="hidden" name="TradeDesc" value="商城購物測試" /><input type="hidden" name="ItemName" value="商品一 100 元 x1" /><input type="hidden" name="ReturnURL" value="http://localhost:3000" /><input type="hidden" name="ChoosePayment" value="ALL" /><input type="hidden" name="NeedExtraPaidInfo" value="N" /><input type="hidden" name="DeviceSource" value="P" /><input type="hidden" name="CheckMacValue" value="CFA8E4AB2A5739FE3014014699455E40" /><script type="text/javascript">document.getElementById("_allpayForm").submit();</script></form>'
+    html: '<form id="_allpayForm" method="post" target="_self" action="https://payment-stage.allpay.com.tw/Cashier/AioCheckOut/V2"><input type="hidden" name="MerchantID" value="2000214" /><input type="hidden" name="MerchantTradeNo" value="TS20160502000001" /><input type="hidden" name="MerchantTradeDate" value="2016/05/02 00:00:00" /><input type="hidden" name="PaymentType" value="aio" /><input type="hidden" name="TotalAmount" value="100" /><input type="hidden" name="TradeDesc" value="商城購物測試" /><input type="hidden" name="ItemName" value="商品一 100 元 x 1" /><input type="hidden" name="ReturnURL" value="http://localhost/receive" /><input type="hidden" name="ChoosePayment" value="ALL" /><input type="hidden" name="CheckMacValue" value="5D6D710C359E8ACC20069C2FFFE34F24" /><script type="text/javascript">document.getElementById("_allpayForm").submit();</script></form>'
   }
   ```
 
@@ -255,7 +289,7 @@ allpay.doAction({
   MerchantTradeNo: "TS20160502000001",
   TradeNo: "1605020000459168",
   Action: "C",
-  TotalAmount: "100",
+  TotalAmount: 100,
 }, function(err, result) {
   // Do something here...
 });
@@ -279,7 +313,7 @@ allpay.doAction({
 allpay.aioChargeback({
   MerchantTradeNo: "TS20160502000001",
   TradeNo: "1605020000459168",
-  ChargeBackTotalAmount: "100",
+  ChargeBackTotalAmount: 100,
 }, function(err, result) {
   // Do something here...
 });
@@ -321,43 +355,90 @@ allpay.capture({
 <a name="genCheckMacValue"></a>
 #### 產生交易檢查碼
 
-```js
-var checkMacValue = allpay.genCheckMacValue({
-  MerchantID: "2000214",
-  MerchantTradeNo: "TS20160502000001",
-  MerchantTradeDate: "2016/05/02 00:00:00",
-  PaymentType: "aio",
-  TotalAmount: 100,
-  TradeDesc: "商城購物測試",
-  ItemName: "商品一 100 元 x1",
-  ReturnURL: "http://localhost/receive",
-  ChoosePayment: "ALL",
-  NeedExtraPaidInfo: "N",
-  DeviceSource: "P",
-});
-```
+> `encryptType`：**選填**，加密類型 (預設為 MD5)
+
+ * MD5 加密
+
+  ```js
+  var checkMacValue = allpay.genCheckMacValue({
+    MerchantID: "2000214",
+    MerchantTradeNo: "TS20160502000001",
+    MerchantTradeDate: "2016/05/02 00:00:00",
+    PaymentType: "aio",
+    TotalAmount: 100,
+    TradeDesc: "商城購物測試",
+    ItemName: "商品一 100 元 x1",
+    ReturnURL: "http://localhost/receive",
+    ChoosePayment: "ALL",
+    NeedExtraPaidInfo: "N",
+    DeviceSource: "P",
+  });
+  ```
+
+ * SHA256 加密
+
+  ```js
+  var checkMacValue = allpay.genCheckMacValue({
+   MerchantID: "2000214",
+   MerchantTradeNo: "TS20160502000001",
+   MerchantTradeDate: "2016/05/02 00:00:00",
+   PaymentType: "aio",
+   TotalAmount: 100,
+   TradeDesc: "商城購物測試",
+   ItemName: "商品一 100 元 x1",
+   ReturnURL: "http://localhost/receive",
+   ChoosePayment: "ALL",
+   NeedExtraPaidInfo: "N",
+   DeviceSource: "P",
+ }, "SHA256");
+  ```
 
 <a name="isDataValid"></a>
 #### 驗證資料正確性
 
-```js
-var isDataValid = allpay.isDataValid({
-  HandlingCharge: "5",
-  ItemName: "商品一 100 元 x1",
-  MerchantID: "2000214",
-  MerchantTradeNo: "TS20160502000001",
-  PayAmt: "0",
-  PaymentDate: "2016/05/02 00:01:23",
-  PaymentType: "Credit_CreditCard",
-  PaymentTypeChargeFee: "5",
-  RedeemAmt: "0",
-  TradeAmt: "100",
-  TradeDate: "2016/05/02 00:00:00",
-  TradeNo: "1605020000459168",
-  TradeStatus: "1",
-  CheckMacValue: "ABE4DDCB8F9895B7FD33858EFB095422"
-});
-```
+> `encryptType`：**選填**，加密類型 (預設為 MD5)
+
+ * 使用 MD5 加密來驗證資料
+
+  ```js
+  var isDataValid = allpay.isDataValid({
+    HandlingCharge: "5",
+    ItemName: "商品一 100 元 x1",
+    MerchantID: "2000214",
+    MerchantTradeNo: "TS20160502000001",
+    PayAmt: "0",
+    PaymentDate: "2016/05/02 00:01:23",
+    PaymentType: "Credit_CreditCard",
+    PaymentTypeChargeFee: "5",
+    RedeemAmt: "0",
+    TradeAmt: "100",
+    TradeDate: "2016/05/02 00:00:00",
+    TradeNo: "1605020000459168",
+    TradeStatus: "1",
+    CheckMacValue: "ABE4DDCB8F9895B7FD33858EFB095422"
+  });
+  ```
+
+ * 使用 SHA256 加密來驗證資料
+
+  ```js
+  allpay.isDataValid({
+   HandlingCharge: "5",
+   ItemName: "商品一 100 元 x1",
+   MerchantID: "2000214",
+   MerchantTradeNo: "TS20160502000001",
+   PayAmt: "0",
+   PaymentDate: "2016/05/02 00:01:23",
+   PaymentType: "Credit_CreditCard",
+   PaymentTypeChargeFee: "5",
+   RedeemAmt: "0",
+   TradeAmt: "100",
+   TradeDate: "2016/05/02 00:00:00",
+   TradeNo: "1605020000459168",
+   TradeStatus: "1",
+   CheckMacValue: "2DF1D23B841F2C8E9816F675A3FC6C77B92A92EC78E9BCF898B0C77ADF39DD7D"
+ }, "SHA256");
+  ```
 
 ---
 
@@ -385,4 +466,4 @@ function callback (err, response) {
 
 MIT
 
-![Analytics](https://ga-beacon.appspot.com/UA-44933497-3/CalvertYang/allpay?pixel)
+![Analytics](https://ga-beacon.appspot.com/UA-44933497-3/CalvertYang/node-allpay?pixel)

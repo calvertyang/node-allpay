@@ -1,84 +1,84 @@
 var Allpay = require("../lib/allpay");
-var allpay = new Allpay({
-  merchantID: "2000214",
-  hashKey: "5294y06JbISpM5x9",
-  hashIV: "v77hoKGq4kWxNNIS"
+var allpay;
+
+beforeEach(function() {
+  allpay = new Allpay({
+    merchantID: "2000214",
+    hashKey: "5294y06JbISpM5x9",
+    hashIV: "v77hoKGq4kWxNNIS"
+  });
+
+  allpay.setHost({
+    host: "payment-stage.allpay.com.tw",
+    port: 443,
+    useSSL: true
+  });
 });
 
 describe("Allpay", function() {
-  describe("#aioCheckOut", function () {
-    it("should return checkout form data", function(done) {
-      allpay.aioCheckOut({
-        "MerchantTradeNo": "TS20160502000001",
-        "MerchantTradeDate": "2016/05/01 00:00:00",
-        "TotalAmount": 120,
-        "TradeDesc": "allpay 商城購物",
-        "Items": [{
-          "name": "商品一",
-          "quantity": "1",
-          "price": 80
-        }, {
-          "name": "商品二",
-          "quantity": "2",
-          "price": 10
-        }],
-        "ReturnURL": "http://localhost:3000",
-        "ChoosePayment": "WebATM",
-      }, function(err, result) {
-        expect(err).to.be.undefined;
-        expect(result).to.be.a("object");
-        expect(result.url).to.be.a("string");
-        expect(result.url).to.equal("https://payment-stage.allpay.com.tw/Cashier/AioCheckOut/V2");
-        expect(result.data).to.be.a("object");
+  describe("#getConfig", function() {
+    it("should return current config", function() {
+      var config = allpay.getConfig();
 
-        var form_data = result.data;
-        expect(form_data.MerchantID).to.be.a("string");
-        expect(form_data.MerchantTradeNo).to.be.a("string");
-        expect(form_data.MerchantTradeDate).to.be.a("string");
-        expect(form_data.PaymentType).to.be.a("string");
-        expect(form_data.TotalAmount).to.be.a("number");
-        expect(form_data.TradeDesc).to.be.a("string");
-        expect(form_data.ItemName).to.be.a("string");
-        expect(form_data.ItemName).to.contain("#");
-        expect(form_data.ItemName).to.contain("元");
-        expect(form_data.ReturnURL).to.be.a("string");
-        expect(form_data.ReturnURL).to.contain("http");
-        expect(form_data.ChoosePayment).to.be.a("string");
-        expect(form_data.CheckMacValue).to.be.a("string");
+      expect(config).to.be.a("object");
+      expect(config.merchantID).to.equal("2000214");
+      expect(config.hashKey).to.equal("5294y06JbISpM5x9");
+      expect(config.hashIV).to.equal("v77hoKGq4kWxNNIS");
+      expect(config.mode).to.equal("test");
+      expect(config.debug).to.be.false;
+      expect(config.host).to.equal("payment-stage.allpay.com.tw");
+      expect(config.port).to.equal(443);
+      expect(config.useSSL).to.be.true;
+      expect(config.isInitialized).to.be.true;
+    });
+  });
 
-        done();
-      });
+  describe("#setHost", function() {
+    it("should set host to http://localhost", function() {
+      allpay.setHost({ host: "http://localhost" });
+
+      var config = allpay.getConfig();
+
+      expect(config.host).to.equal("http://localhost");
     });
 
-    it("should return checkout form data with e-invoice", function(done) {
+    it("should set port to 9999", function() {
+      allpay.setHost({ port: 9999 });
+
+      var config = allpay.getConfig();
+
+      expect(config.port).to.equal(9999);
+    });
+
+    it("should set useSSL to false", function() {
+      allpay.setHost({ useSSL: false });
+
+      var config = allpay.getConfig();
+
+      expect(config.useSSL).to.be.false;
+    });
+  });
+
+  describe("#aioCheckOut", function() {
+    it("should return checkout form data", function(done) {
       allpay.aioCheckOut({
-        "MerchantTradeNo": "TS20160502000001",
-        "MerchantTradeDate": "2016/05/01 00:00:00",
-        "TotalAmount": 120,
-        "TradeDesc": "allpay 商城購物",
-        "Items": [{
-          "name": "商品一",
-          "quantity": "1",
-          "price": 80
+        MerchantTradeNo: "TS20160502000001",
+        MerchantTradeDate: "2016/05/01 00:00:00",
+        TotalAmount: 120,
+        TradeDesc: "allpay 商城購物",
+        Items: [{
+          name: "商品一",
+          price: 80,
+          currency: "元",
+          quantity: 1
         }, {
-          "name": "商品二",
-          "quantity": "2",
-          "price": 10
+          name: "商品二",
+          price: 10,
+          currency: "元",
+          quantity: 2
         }],
-        "ReturnURL": "http://localhost:3000",
-        "ChoosePayment": "WebATM",
-        "InvoiceMark": "Y",
-        "RelateNumber": "TS20160502000001",
-        "CustomerEmail": "test@localhost.com",
-        "TaxType": "1",
-        "InvoiceItems": [{
-          "name": "商品一",
-          "count": "1",
-          "word": "個",
-          "price": "100",
-          "taxType": "1"
-        }],
-        "InvType": "07",
+        ReturnURL: "http://localhost/receive",
+        ChoosePayment: "WebATM"
       }, function(err, result) {
         expect(err).to.be.undefined;
         expect(result).to.be.a("object");
@@ -87,43 +87,146 @@ describe("Allpay", function() {
         expect(result.url).to.equal("https://payment-stage.allpay.com.tw/Cashier/AioCheckOut/V2");
         expect(result.data).to.be.a("object");
         expect(result.html).to.be.a("string");
+        expect(result.html).to.match(/^<form.+\/form>$/);
 
         var form_data = result.data;
         expect(form_data.MerchantID).to.be.a("string");
+        expect(form_data.MerchantID).to.equal("2000214");
         expect(form_data.MerchantTradeNo).to.be.a("string");
+        expect(form_data.MerchantTradeNo).to.equal("TS20160502000001");
         expect(form_data.MerchantTradeDate).to.be.a("string");
+        expect(form_data.MerchantTradeDate).to.equal("2016/05/01 00:00:00");
+        expect(form_data.PaymentType).to.be.a("string");
         expect(form_data.PaymentType).to.equal("aio");
         expect(form_data.TotalAmount).to.be.a("number");
+        expect(form_data.TotalAmount).to.equal(120);
         expect(form_data.TradeDesc).to.be.a("string");
+        expect(form_data.TradeDesc).to.equal("allpay 商城購物");
         expect(form_data.ItemName).to.be.a("string");
+        expect(form_data.ItemName).to.equal("商品一 80 元 x 1#商品二 10 元 x 2");
         expect(form_data.ReturnURL).to.be.a("string");
-        expect(form_data.ReturnURL).to.contain("http");
+        expect(form_data.ReturnURL).to.equal("http://localhost/receive");
         expect(form_data.ChoosePayment).to.be.a("string");
-        expect(form_data.NeedExtraPaidInfo).to.be.oneOf(["N", "Y"]);
-        expect(form_data.DeviceSource).to.be.oneOf(["P", "M"]);
-        expect(form_data.InvoiceMark).to.be.oneOf(["N", "Y"]);
-        expect(form_data.RelateNumber).to.be.a("string");
-        expect(form_data.CustomerID).to.be.a("string");
-        expect(form_data.CustomerIdentifier).to.be.a("string");
-        expect(form_data.CustomerName).to.be.a("string");
-        expect(form_data.CustomerAddr).to.be.a("string");
-        expect(form_data.CustomerEmail).to.be.a("string");
-        expect(form_data.ClearanceMark).to.be.a("string");
-        expect(form_data.TaxType).to.be.oneOf(["1", "2", "3", "9"]);
-        expect(form_data.CarruerType).to.be.oneOf(["", "1", "2", "3"]);
-        expect(form_data.CarruerNum).to.match(/^$|^[a-zA-Z]{2}\d{14}$|^\/{1}[0-9a-zA-Z+-.]{7}$/);
-        expect(form_data.Donation).to.be.oneOf(["1", "2"]);
-        expect(form_data.LoveCode).to.match(/^$|^([xX]{1}[0-9]{2,6}|[0-9]{3,7})$/);
-        expect(form_data.Print).to.be.oneOf(["0", "1"]);
-        expect(form_data.InvoiceItemName).to.be.equal("商品一");
-        expect(form_data.InvoiceItemCount).to.be.equal("1");
-        expect(form_data.InvoiceItemWord).to.be.equal("個");
-        expect(form_data.InvoiceItemPrice).to.be.equal("100");
-        expect(form_data.InvoiceItemTaxType).to.be.equal("1");
-        expect(form_data.InvoiceRemark).to.be.a("string");
-        expect(form_data.DelayDay).to.be.within(0, 15);
-        expect(form_data.InvType).to.be.oneOf(["07", "08"]);
+        expect(form_data.ChoosePayment).to.equal("WebATM");
         expect(form_data.CheckMacValue).to.be.a("string");
+        expect(form_data.CheckMacValue).to.equal("1CE2EC77FF316D28F0B4BD746996E25F");
+
+        done();
+      });
+    });
+
+    it("should return checkout form data with e-invoice", function(done) {
+      allpay.aioCheckOut({
+        MerchantTradeNo: "TS20160502000001",
+        MerchantTradeDate: "2016/05/01 00:00:00",
+        TotalAmount: 120,
+        TradeDesc: "allpay 商城購物",
+        Items: [{
+          name: "商品一",
+          price: 80,
+          currency: "元",
+          quantity: 1
+        }, {
+          name: "商品二",
+          price: 10,
+          currency: "元",
+          quantity: 2
+        }],
+        ReturnURL: "http://localhost/receive",
+        ChoosePayment: "WebATM",
+        InvoiceMark: "Y",
+        RelateNumber: "TS20160502000001",
+        CustomerEmail: "test@localhost.com",
+        TaxType: "1",
+        InvoiceItems: [{
+          name: "商品一",
+          count: 1,
+          word: "個",
+          price: 80,
+          taxType: "1"
+        }, {
+          name: "商品二",
+          count: 2,
+          word: "個",
+          price: 10,
+          taxType: "1"
+        }],
+        InvType: "07"
+      }, function(err, result) {
+        expect(err).to.be.undefined;
+        expect(result).to.be.a("object");
+
+        expect(result.url).to.be.a("string");
+        expect(result.url).to.equal("https://payment-stage.allpay.com.tw/Cashier/AioCheckOut/V2");
+        expect(result.data).to.be.a("object");
+        expect(result.html).to.be.a("string");
+        expect(result.html).to.match(/^<form.+\/form>$/);
+
+        var form_data = result.data;
+        expect(form_data.MerchantID).to.be.a("string");
+        expect(form_data.MerchantID).to.equal("2000214");
+        expect(form_data.MerchantTradeNo).to.be.a("string");
+        expect(form_data.MerchantTradeNo).to.equal("TS20160502000001");
+        expect(form_data.MerchantTradeDate).to.be.a("string");
+        expect(form_data.MerchantTradeDate).to.equal("2016/05/01 00:00:00");
+        expect(form_data.PaymentType).to.be.a("string");
+        expect(form_data.PaymentType).to.equal("aio");
+        expect(form_data.TotalAmount).to.be.a("number");
+        expect(form_data.TotalAmount).to.equal(120);
+        expect(form_data.TradeDesc).to.be.a("string");
+        expect(form_data.TradeDesc).to.equal("allpay 商城購物");
+        expect(form_data.ItemName).to.be.a("string");
+        expect(form_data.ItemName).to.equal("商品一 80 元 x 1#商品二 10 元 x 2");
+        expect(form_data.ReturnURL).to.be.a("string");
+        expect(form_data.ReturnURL).to.equal("http://localhost/receive");
+        expect(form_data.ChoosePayment).to.be.a("string");
+        expect(form_data.ChoosePayment).to.equal("WebATM");
+        expect(form_data.InvoiceMark).to.be.a("string");
+        expect(form_data.InvoiceMark).to.equal("Y");
+        expect(form_data.RelateNumber).to.be.a("string");
+        expect(form_data.RelateNumber).to.equal("TS20160502000001");
+        expect(form_data.CustomerID).to.be.a("string");
+        expect(form_data.CustomerID).to.equal("");
+        expect(form_data.CustomerIdentifier).to.be.a("string");
+        expect(form_data.CustomerIdentifier).to.equal("");
+        expect(form_data.CustomerName).to.be.a("string");
+        expect(form_data.CustomerName).to.equal("");
+        expect(form_data.CustomerAddr).to.be.a("string");
+        expect(form_data.CustomerAddr).to.equal("");
+        expect(form_data.CustomerEmail).to.be.a("string");
+        expect(form_data.CustomerEmail).to.equal("test%40localhost.com");
+        expect(form_data.ClearanceMark).to.be.a("string");
+        expect(form_data.ClearanceMark).to.equal("");
+        expect(form_data.TaxType).to.be.a("string");
+        expect(form_data.TaxType).to.equal("1");
+        expect(form_data.CarruerType).to.be.a("string");
+        expect(form_data.CarruerType).to.equal("");
+        expect(form_data.CarruerNum).to.be.a("string");
+        expect(form_data.CarruerNum).to.equal("");
+        expect(form_data.Donation).to.be.a("string");
+        expect(form_data.Donation).to.equal("2");
+        expect(form_data.LoveCode).to.be.a("string");
+        expect(form_data.LoveCode).to.equal("");
+        expect(form_data.Print).to.be.a("string");
+        expect(form_data.Print).to.equal("0");
+        expect(form_data.InvoiceItemName).to.be.a("string");
+        expect(form_data.InvoiceItemName).to.equal("%E5%95%86%E5%93%81%E4%B8%80|%E5%95%86%E5%93%81%E4%BA%8C");
+        expect(form_data.InvoiceItemCount).to.be.a("string");
+        expect(form_data.InvoiceItemCount).to.equal("1|2");
+        expect(form_data.InvoiceItemWord).to.be.a("string");
+        expect(form_data.InvoiceItemWord).to.equal("%E5%80%8B|%E5%80%8B");
+        expect(form_data.InvoiceItemPrice).to.be.a("string");
+        expect(form_data.InvoiceItemPrice).to.equal("80|10");
+        expect(form_data.InvoiceItemTaxType).to.be.a("string");
+        expect(form_data.InvoiceItemTaxType).to.equal("1|1");
+        expect(form_data.InvoiceRemark).to.be.a("string");
+        expect(form_data.InvoiceRemark).to.equal("");
+        expect(form_data.DelayDay).to.be.a("number");
+        expect(form_data.DelayDay).to.equal(0);
+        expect(form_data.InvType).to.be.a("string");
+        expect(form_data.InvType).to.equal("07");
+        expect(form_data.CheckMacValue).to.be.a("string");
+        expect(form_data.CheckMacValue).to.equal("E1BAFF4D913CDD3FEF2B43F67C5D2A35");
 
         done();
       });
@@ -133,7 +236,7 @@ describe("Allpay", function() {
   describe("#queryTradeInfo", function() {
     it("should return trade information", function(done) {
       allpay.queryTradeInfo({
-        "MerchantTradeNo": "TS20160429000001"
+        MerchantTradeNo: "TS20160429000001"
       }, function(err, result) {
         expect(err).to.be.undefined;
         expect(result).to.be.a("object");
@@ -162,7 +265,7 @@ describe("Allpay", function() {
 
     it("should return extra trade information", function(done) {
       allpay.queryTradeInfo({
-        "MerchantTradeNo": "TS20160429000002"
+        MerchantTradeNo: "TS20160429000002"
       }, function(err, result) {
         expect(err).to.be.undefined;
         expect(result).to.be.a("object");
@@ -220,7 +323,7 @@ describe("Allpay", function() {
   describe("#queryCreditCardPeriodInfo", function() {
     it("should return credit card period information", function(done) {
       allpay.queryCreditCardPeriodInfo({
-        "MerchantTradeNo": "TS20160429000003"
+        MerchantTradeNo: "TS20160429000003"
       }, function(err, result) {
         expect(err).to.be.undefined;
         expect(result).to.be.a("object");
@@ -252,13 +355,13 @@ describe("Allpay", function() {
   describe("#doAction", function() {
     it("should return not supported error", function(done) {
       allpay.doAction({
-        "MerchantTradeNo": "TS20160429000001",
-        "TradeNo": "1604291411319292",
-        "Action": "C",
-        "TotalAmount": "100",
+        MerchantTradeNo: "TS20160429000001",
+        TradeNo: "1604291411319292",
+        Action: "C",
+        TotalAmount: 100
       }, function(err, result) {
         expect(err).to.be.an.instanceof(Error);
-        expect(err.message).to.equal("This feature is not supported in test mode");
+        expect(err.message).to.equal("This feature is not supported in test mode.");
         expect(result).to.be.undefined;
 
         done();
@@ -269,9 +372,9 @@ describe("Allpay", function() {
   describe.skip("#aioChargeback", function() {
     it("should return charge back information", function(done) {
       allpay.aioChargeback({
-        "MerchantTradeNo": "TS20160429000001",
-        "TradeNo": "1604291411319292",
-        "ChargeBackTotalAmount": "100",
+        MerchantTradeNo: "TS20160429000001",
+        TradeNo: "1604291411319292",
+        ChargeBackTotalAmount: 100
       }, function(err, result) {
         expect(err).to.be.undefined;
         expect(result).to.be.a("object");
@@ -287,9 +390,9 @@ describe("Allpay", function() {
   describe.skip("#capture", function() {
     it("should return capture information", function(done) {
       allpay.capture({
-        "MerchantTradeNo": "TS20160429000001",
-        "CaptureAMT": 500,
-        "UserRefundAMT": 0,
+        MerchantTradeNo: "TS20160429000001",
+        CaptureAMT: 500,
+        UserRefundAMT: 0
       }, function(err, result) {
         expect(err).to.be.undefined;
         expect(result).to.be.a("object");
@@ -307,63 +410,82 @@ describe("Allpay", function() {
   });
 
   describe("#genCheckMacValue", function() {
-    it("should generate CheckMacValue by MD5", function() {
+    it("should generate CheckMacValue via MD5", function() {
       var checkMacValue = allpay.genCheckMacValue({
-        "MerchantID": "2000214",
-        "MerchantTradeNo": "20160501000001",
-        "MerchantTradeDate": "2016/05/01 00:00:00",
-        "TotalAmount": 120,
-        "TradeDesc": "allpay 商城購物",
-        "ItemName": "商品一 80 元 x1#商品二 10 元 x2",
-        "ReturnURL": "http://localhost:3000",
-        "ChoosePayment": "WebATM",
-        "DeviceSource": "P",
-        "NeedExtraPaidInfo": "N",
-        "PaymentType": "aio",
+        MerchantID: "2000214",
+        MerchantTradeNo: "20160501000001",
+        MerchantTradeDate: "2016/05/01 00:00:00",
+        PaymentType: "aio",
+        TotalAmount: 120,
+        TradeDesc: "allpay 商城購物",
+        ItemName: "商品一 80 元 x1#商品二 10 元 x2",
+        ReturnURL: "http://localhost/receive",
+        ChoosePayment: "WebATM",
+        DeviceSource: "P",
+        NeedExtraPaidInfo: "N"
       });
 
       expect(checkMacValue).to.be.a("string");
-      expect(checkMacValue).to.equal("BB5B8D5F26BFAEAB6BD2D8501D3F6144");
+      expect(checkMacValue).to.equal("F27F5BC6A5A0E95AE3F5477774F938E2");
     });
 
-    it("should generate CheckMacValue by SHA256", function() {
+    it("should generate CheckMacValue via SHA256", function() {
       var checkMacValue = allpay.genCheckMacValue({
-        "MerchantID": "2000214",
-        "MerchantTradeNo": "20160501000001",
-        "MerchantTradeDate": "2016/05/01 00:00:00",
-        "TotalAmount": 120,
-        "TradeDesc": "allpay 商城購物",
-        "ItemName": "商品一 80 元 x1#商品二 10 元 x2",
-        "ReturnURL": "http://localhost:3000",
-        "ChoosePayment": "WebATM",
-        "DeviceSource": "P",
-        "NeedExtraPaidInfo": "N",
-        "PaymentType": "aio",
+        MerchantID: "2000214",
+        MerchantTradeNo: "20160501000001",
+        MerchantTradeDate: "2016/05/01 00:00:00",
+        PaymentType: "aio",
+        TotalAmount: 120,
+        TradeDesc: "allpay 商城購物",
+        ItemName: "商品一 80 元 x1#商品二 10 元 x2",
+        ReturnURL: "http://localhost/receive",
+        ChoosePayment: "WebATM",
+        NeedExtraPaidInfo: "N",
+        DeviceSource: "P"
       }, "SHA256");
 
       expect(checkMacValue).to.be.a("string");
-      expect(checkMacValue).to.equal("3181C4F0F42EF67459275E83C7F2014F36D7FA3E22DAD26965BCA0A195216F26");
+      expect(checkMacValue).to.equal("33AB3EAFD997E848E5375273EFB91981C80DFD778E98537B81A687BEE71AF892");
     });
   });
 
   describe("#isDataValid", function() {
-    it("should do data validation", function() {
+    it("should validate data via MD5", function() {
       var data = {
-        "MerchantID": "2000214",
-        "MerchantTradeNo": "20160501000001",
-        "MerchantTradeDate": "2016/05/01 00:00:00",
-        "PaymentType": "aio",
-        "TotalAmount": 120,
-        "TradeDesc": "allpay 商城購物",
-        "ItemName": "商品一 80 元 x1#商品二 10 元 x2",
-        "ReturnURL": "http://localhost:3000",
-        "ChoosePayment": "WebATM",
-        "NeedExtraPaidInfo": "N",
-        "DeviceSource": "P",
-        "CheckMacValue": "BB5B8D5F26BFAEAB6BD2D8501D3F6144"
-       };
+        MerchantID: "2000214",
+        MerchantTradeNo: "20160501000001",
+        MerchantTradeDate: "2016/05/01 00:00:00",
+        PaymentType: "aio",
+        TotalAmount: 120,
+        TradeDesc: "allpay 商城購物",
+        ItemName: "商品一 80 元 x1#商品二 10 元 x2",
+        ReturnURL: "http://localhost/receive",
+        ChoosePayment: "WebATM",
+        NeedExtraPaidInfo: "N",
+        DeviceSource: "P",
+        CheckMacValue: "F27F5BC6A5A0E95AE3F5477774F938E2"
+      };
 
-       expect(allpay.isDataValid(data)).to.be.true;
+      expect(allpay.isDataValid(data)).to.be.true;
+    });
+
+    it("should validate data via SHA256", function() {
+      var data = {
+        MerchantID: "2000214",
+        MerchantTradeNo: "20160501000001",
+        MerchantTradeDate: "2016/05/01 00:00:00",
+        PaymentType: "aio",
+        TotalAmount: 120,
+        TradeDesc: "allpay 商城購物",
+        ItemName: "商品一 80 元 x1#商品二 10 元 x2",
+        ReturnURL: "http://localhost/receive",
+        ChoosePayment: "WebATM",
+        NeedExtraPaidInfo: "N",
+        DeviceSource: "P",
+        CheckMacValue: "33AB3EAFD997E848E5375273EFB91981C80DFD778E98537B81A687BEE71AF892"
+      };
+
+      expect(allpay.isDataValid(data, "SHA256")).to.be.true;
     });
   });
 });

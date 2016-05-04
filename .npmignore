@@ -3,6 +3,7 @@
 ##############################
 node_modules
 npm-debug.log
+.npmignore
 
 ##############################
 # tmp, editor & OS files
@@ -12,3 +13,6 @@ npm-debug.log
 .DS_STORE
 
 source
+test
+.babelrc
+.travis.yml
