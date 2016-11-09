@@ -64,13 +64,13 @@ var allpay = new Allpay({
 
 ```js
 allpay.setHost({
-  baseUrl: "payment-stage.allpay.com.tw",
+  host: "payment-stage.allpay.com.tw",
   port: 80,
   useSSL: false
 });
 ```
 
-> `baseUrl`：**選填**，介接網址 (預設為 payment-stage.allpay.com.tw)
+> `host`：**選填**，介接網址 (預設為 payment-stage.allpay.com.tw)
 >
 > `port`：**選填**，連接埠 (預設為 443)
 >
