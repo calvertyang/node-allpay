@@ -1,3 +1,5 @@
+> 目前已有官方版 [Node.js SDK](https://github.com/allPay/allPayAIO_Node.js)，本套件停止更新！
+
 ## AllPay 全方位金流介接 SDK for Node.js
 
 [![NPM version](https://badge.fury.io/js/allpay.svg)](https://npmjs.org/package/allpay)
